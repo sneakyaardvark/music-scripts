@@ -1,0 +1,41 @@
+#!/bin/bash
+# 2022-12-19
+#
+# Transfer the audio to a new "container" to fix issues with vbr headers
+# that cause incorrect track length calculators or to remove padding.
+# Options:
+#   -a  run on all .m4a and .mp3 files in PWD
+#   PATH  run on file at path PATH
+#
+# All files are automatically backed up to the location $backup_dir
+# 
+# Some metadata may be dropped (such as MusicBrainz Recording Id
+# and a few other seemingly random ones).
+# I am not sure why at this time.
+#
+backup_dir="$HOME/lengthfix_backup"
+result=${PWD##*/}          # to assign to a variable
+pwd_name=${result:-/}        # to correct for the case where PWD=/
+
+full_backup_path="$backup_dir/$pwd_name"
+mkdir -p "$full_backup_path"
+#[[ -d "$backup_dir" ]] || mkdir "$backup_dir"
+
+
+if [[ $1 == "-a" ]]; then
+  for f in *; do
+    if [[ $f == *.m4a ]] || [[ $f == *.mp3 ]]; then
+      mv "$f" "$full_backup_path/"
+      ffmpeg -loglevel warning -nostats -i "$full_backup_path/$f" -c copy -map_metadata 0 "$f"
+    fi
+  done
+else
+  mv "$1" "$full_backup_path/"
+  ffmpeg -loglevel warning -nostats -i "$full_backup_path/$1" -c copy -map_metadata 0 "$1"
+fi
+
+# keeping these for reference:
+# audio track only (may inflate file size by transcoding cover art stream)
+#ffmpeg -v quiet -i "$HOME/lengthfixbak/$1" -acodec copy "$1"
+# extra metadata args
+#ffmpeg -loglevel warning -nostats -i "$backup_dir/$1" -c copy -map_metadata 0 -map_metadata:s:v 0:s:v -map_metadata:s:a 0:s:a -write_id3v2 1 -id3v2_version 3 -write_id3v1 1 "$1"

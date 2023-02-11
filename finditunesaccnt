@@ -1,0 +1,19 @@
+#!/bin/bash
+# 2023-01-31
+#
+# Requires `mediainfo`
+# Find audio files (by default mp3 & m4a extensions) and check if they have AppleStoreAccount data
+
+readarray -d '' audiof < <(find "$PWD" -name "*.mp3" -print0 -o -name "*.m4a" -print0)
+
+echo "[+] found ${#audiof[@]} audio files"
+for f in "${audiof[@]}"; do
+  #if mediainfo "$f" | grep "@"; then
+   # echo $f
+    #mediainfo "$f" | grep "@"
+  #fi
+  mediainfo --Output="General;%AppleStoreAccount% %FileNameExtension%" "$f" | grep "@" && echo "$f"
+  #mediainfo --Output="General;%AppleStoreAccount%" "$f"
+done
+
+echo "[=] Finished."
