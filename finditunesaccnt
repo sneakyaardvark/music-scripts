@@ -8,12 +8,7 @@ readarray -d '' audiof < <(find "$PWD" -name "*.mp3" -print0 -o -name "*.m4a" -p
 
 echo "[+] found ${#audiof[@]} audio files"
 for f in "${audiof[@]}"; do
-  #if mediainfo "$f" | grep "@"; then
-   # echo $f
-    #mediainfo "$f" | grep "@"
-  #fi
-  mediainfo --Output="General;%AppleStoreAccount% %FileNameExtension%" "$f" | grep "@" && echo "$f"
-  #mediainfo --Output="General;%AppleStoreAccount%" "$f"
+  mediainfo --Inform="General;%AppleStoreAccount% %FileNameExtension%" "$f" | grep "@" && echo "$f"
 done
 
 echo "[=] Finished."
