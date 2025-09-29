@@ -1,0 +1,16 @@
+#!/bin/bash
+# 2025-09-28
+#
+# requires `mediainfo`
+# Find all music files (flac, m4a, mp3) that don't have a given tag
+# ex: findnotag "Genre"
+
+readarray -d '' audiof < <(find "$PWD" -name "*.mp3" -print0 -o -name "*.m4a" -print0 -o -name "*.flac" -print0)
+
+echo "[+] found ${#audiof[@]} audio files"
+for f in "${audiof[@]}"; do
+  if ! [[ $(mediainfo --Inform="General;%$1%" "$f") ]]; then
+    echo "$f"
+  fi
+done
+
